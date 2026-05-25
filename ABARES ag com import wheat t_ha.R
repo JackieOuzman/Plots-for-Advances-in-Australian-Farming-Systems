@@ -6,7 +6,6 @@ library(dplyr)
 library(tidyr)
 library(zoo)
 library(readxl)
-
 library(stringr)
 
 #################################################################################
@@ -14,9 +13,8 @@ library(stringr)
 #################################################################################
 
 
-library(readxl)
-library(dplyr)
-library(stringr)
+
+
 
 path <- "N:/Advances in Australian Farming Systems Paper/Section 1/ABARES_Ag_commodities/21_ACS2024_25_WheatTables_v1.0.0.xlsx"
 
