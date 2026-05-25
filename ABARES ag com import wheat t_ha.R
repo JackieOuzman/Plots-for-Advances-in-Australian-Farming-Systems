@@ -45,6 +45,13 @@ abares_hist <- read_excel(
 abares_hist <- abares_hist %>%
   mutate(wheat_t_per_ha_5yr_avg = round(zoo::rollmean(wheat_t_per_wheat_sown_ha, 5, fill = NA, align = "right"), 2))
 
+names(abares_hist)
+unique(abares_hist$Year)
+
+write.csv(abares_hist, 
+          "N:/Advances in Australian Farming Systems Paper/Section 1/ABARES_Ag_commodities/wheat_ABARES.csv", 
+          row.names = FALSE)
+
 
 ggplot(abares_hist, aes(x = Year)) +
   geom_line(aes(y = wheat_t_per_wheat_sown_ha, colour = "Annual"), linewidth = 0.7) +

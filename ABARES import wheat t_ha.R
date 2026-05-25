@@ -16,6 +16,7 @@ nat_est <- read_historical_national_estimates()
 # Inspect what's in there first - check unique industries and variables
 unique(nat_est$Industry)
 unique(nat_est$Variable)  # or Variable - check snake_case naming
+max(nat_est$Year)
 
 grep("wheat", unique(nat_est$Variable), value = TRUE, ignore.case = TRUE)
 
@@ -25,6 +26,8 @@ Wheat_crop <- nat_est %>%
     Industry == "All Broadacre",
     Variable %in% c("Wheat produced (t)", "Wheat area sown (ha)")
   )
+
+max(Wheat_crop$Year)
 
 Wheat_crop_wide <- Wheat_crop %>%
   select(-RSE) %>%
