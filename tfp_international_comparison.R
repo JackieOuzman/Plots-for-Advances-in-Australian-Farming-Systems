@@ -92,6 +92,10 @@ raw <- read_csv(usda_file, show_col_types = FALSE) |>
 
 # ── 4. Figure 1: Average annual growth rates, 2000–2022 ----------------------
 
+## Check data range
+max(raw$year)
+min(raw$year)
+
 period_start <- 2000
 period_end   <- 2022
 
