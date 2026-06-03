@@ -242,6 +242,8 @@ plot_df <- comparable_farms %>%
 # -----------------------------------------------------------------------------
 # Plot
 # -----------------------------------------------------------------------------
+levels = c("Beef farmers", "Sheep farmers", "Wheat growers",
+           "Barley growers", "Canola growers", "Dairy farmers")
 
 p1 <- ggplot(plot_df, aes(x = farm_type, y = n_businesses, fill = year)) +
   geom_col(position = position_dodge(width = 0.7), width = 0.6) +
@@ -276,6 +278,36 @@ p1 <- ggplot(plot_df, aes(x = farm_type, y = n_businesses, fill = year)) +
   )
 
 p1
+
+p1_v2 <- ggplot(plot_df, aes(x = farm_type, y = n_businesses, fill = year)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_text(
+    aes(label = scales::comma(n_businesses)),
+    position = position_dodge(width = 0.7),
+    vjust = -0.5, size = 3, colour = "grey30"
+  ) +
+  scale_y_continuous(
+    labels = scales::comma,
+    expand = expansion(mult = c(0, 0.12))
+  ) +
+  scale_fill_manual(values = c("2010-11" = "#378ADD", "2021-22" = "#1D9E75")) +
+  labs(
+    x    = NULL,
+    y    = "Number of agricultural businesses",
+    fill = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position      = "top",
+    legend.justification = "left",
+    panel.grid.major.x   = element_blank(),
+    panel.grid.minor     = element_blank(),
+    axis.text.x          = element_text(size = 10)
+  )
+
+p1_v2
+
+
 
 
 # -----------------------------------------------------------------------------
@@ -334,7 +366,23 @@ p_inset <- ggplot(inset_df, aes(x = year, y = n_businesses, fill = year)) +
 # -----------------------------------------------------------------------------
 # Combine — note left must be LESS than right
 # -----------------------------------------------------------------------------
-farm_bus <- p_main + inset_element(p_inset, left = 0.70, bottom = 0.55, right = 0.98, top = 1.0)
+#farm_bus <- p1 + inset_element(p_inset, left = 0.70, bottom = 0.55, right = 0.98, top = 1.0)
+farm_bus <- p1 + inset_element(p_inset, 
+                               left   = 0.72, 
+                               bottom = 0.60, 
+                               right  = 1.0,    # push flush to right edge
+                               top    = 1.05)   # allow it to bleed slightly above panel
+farm_bus
+
+
+
+farm_bus_v2 <- p1_v2 + inset_element(p_inset, 
+                               left   = 0.72, 
+                               bottom = 0.60, 
+                               right  = 1.0,    # push flush to right edge
+                               top    = 1.05)   # allow it to bleed slightly above panel
+farm_bus_v2
+
 
 
 
@@ -485,15 +533,7 @@ max(hist_nat$Year)
 
 # Save panel A - farm numbers bar chart
 farm_bus
-ggsave(
-  filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Farm size and Consolidation/fig_farm_business_numbers_ABS.png",
-  plot     = p_numbers,
-  width    = 10,
-  height   = 6,
-  dpi      = 300,
-  bg       = "white"
-)
-
+farm_bus_v2
 
 ggsave(
   filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Farm size and Consolidation/fig_farm_business_numbers_ABS.png",
@@ -501,6 +541,24 @@ ggsave(
   width    = 10,
   height   = 6,
   dpi      = 300,
+  bg       = "white"
+)
+
+ggsave(
+  filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Farm size and Consolidation/fig_farm_business_numbers_ABS_CLEAN.png",
+  plot     = farm_bus_v2,
+  width    = 10,
+  height   = 6,
+  dpi      = 300,
+  bg       = "white"
+)
+
+ggsave(
+  filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Farm size and Consolidation/fig_farm_business_numbers_ABS_CLEAN_600dpi.png",
+  plot     = farm_bus_v2,
+  width    = 10,
+  height   = 6,
+  dpi      = 600,
   bg       = "white"
 )
 
@@ -515,3 +573,69 @@ ggsave(
   bg       = "white"
 )
 
+
+
+Total_area_cropped_cropping_v2 <- hist_nat %>%
+  filter(Variable == "Total area cropped (ha)",
+         Industry == "Cropping") %>%
+  select(Year, Industry, Value) %>%
+  arrange(Year) %>%
+  mutate(Year = as.integer(Year)) %>%
+  ggplot(aes(x = Year, y = Value)) +
+  geom_line(colour = "#185FA5", linewidth = 0.8) +
+  geom_point(colour = "#185FA5", size = 1.5, shape = 16) +
+  scale_y_continuous(
+    labels = scales::comma,
+    limits = c(0, NA),
+    expand = expansion(mult = c(0, 0.08))
+  ) +
+  scale_x_continuous(
+    breaks = c(seq(1990, 2020, by = 5), 2024),
+    expand = expansion(mult = c(0.02, 0.02))
+  ) +
+  labs(
+    x = NULL,
+    y = "Average area cropped per farm (ha)"
+  ) +
+  theme_classic(base_size = 14) +
+  theme(
+    axis.line          = element_line(colour = "grey70", linewidth = 0.4),
+    axis.ticks         = element_line(colour = "grey70", linewidth = 0.4),
+    axis.text          = element_text(size = 12, colour = "grey20"),
+    axis.title.y       = element_text(size = 12, colour = "grey20",
+                                      margin = margin(r = 8)),
+    panel.grid.major.y = element_line(colour = "grey90", linewidth = 0.3),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor   = element_blank(),
+    plot.margin        = margin(t = 10, r = 15, b = 10, l = 10)
+  )
+
+Total_area_cropped_cropping_v2
+ggsave(
+  filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Farm size and Consolidation/fig_Total_area_cropped_cropping_v2CLEAN.png",
+  plot     = Total_area_cropped_cropping_v2,
+  width    = 10,
+  height   = 6,
+  dpi      = 300,
+  bg       = "white"
+)
+
+ggsave(
+  filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Farm size and Consolidation/fig_Total_area_cropped_cropping_v2CLEAN_dpi600.png",
+  plot     = Total_area_cropped_cropping_v2,
+  width    = 10,
+  height   = 6,
+  dpi      = 600,
+  bg       = "white"
+)
+
+
+
+################################################################################
+p1
+p_inset
+farm_bus
+area_operated_per_farm
+Total_area_cropped
+Total_area_cropped_cropping
+Total_area_cropped_cropping_v2
