@@ -90,14 +90,14 @@ raw <- read_csv(usda_file, show_col_types = FALSE) |>
   ) |>
   filter(!is.na(tfp_index), !is.na(year))
 
-# ── 4. Figure 1: Average annual growth rates, 2000–2022 ----------------------
+# ── 4. Figure 1: Average annual growth rates, 2000–2023 ----------------------
 
 ## Check data range
 max(raw$year)
 min(raw$year)
 
 period_start <- 2000
-period_end   <- 2022
+period_end   <- 2023
 
 growth <- raw |>
   filter(year >= period_start, year <= period_end) |>
@@ -160,14 +160,14 @@ p1 <- ggplot(growth, aes(x = avg_growth, y = label, fill = bar_colour)) +
   ) +
   
   labs(
-    title    = "Average annual agricultural TFP growth — international comparison, 2000–2022",
+    title    = "Average annual agricultural TFP growth — international comparison, 2000–2023",
     subtitle = "Log-linear trend rate (% per year); USDA ERS TFP index, base year 2015 = 100",
     x        = "Average annual TFP growth rate (%)",
     y        = NULL,
     caption  = paste0(
       "Source: USDA Economic Research Service (2026). International Agricultural Productivity, 1961–2023.\n",
       "https://www.ers.usda.gov/data-products/international-agricultural-productivity/\n",
-      "Note: Growth rates estimated by log-linear regression over 2000–2022. ",
+      "Note: Growth rates estimated by log-linear regression over 2000–2023. ",
       "OECD = 38 member countries as of 2021."
     )
   ) +
@@ -192,15 +192,90 @@ p1 <- ggplot(growth, aes(x = avg_growth, y = label, fill = bar_colour)) +
     plot.margin        = margin(t = 10, r = 40, b = 10, l = 10)
   )
 p1
-ggsave(file.path(out_dir, "tfp_international_bar.png"), plot = p1,
+
+p1_v2 <- ggplot(
+  growth |> filter(!label %in% c("India", "China", "World (avg)", "Germany")),
+  aes(x = avg_growth, y = label, fill = bar_colour)
+) +
+  
+  geom_col(width = 0.70) +
+  geom_vline(xintercept = 0, colour = "#6B7280", linewidth = 0.6) +
+  
+  geom_col(
+    data = filter(growth, is_australia, !label %in% c("India", "China", "World", "Germany")),
+    aes(x = avg_growth, y = label),
+    width = 0.70, fill = col_australia, colour = "#0D2F52", linewidth = 0.5
+  ) +
+  
+  geom_text(
+    aes(
+      label = sprintf("%+.2f%%", avg_growth),
+      hjust = ifelse(avg_growth >= 0, -0.12, 1.12)
+    ),
+    size = 3.5, colour = "grey20"
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "Australia" = col_australia,
+      "Other"     = col_other,
+      "Aggregate" = col_aggregate
+    ),
+    labels = c(
+      "Australia" = "Australia",
+      "Other"     = "Comparator countries",
+      "Aggregate" = "Regional/global aggregates"
+    ),
+    name = NULL
+  ) +
+  scale_x_continuous(
+    labels = function(x) paste0(x, "%"),
+    expand = expansion(mult = c(0.02, 0.16)),
+    limits = c(-1.5, NA)          # ← extend left so NZ bar + label shows fully
+  ) +
+  
+  labs(
+    x = "Average annual TFP growth rate (%)",
+    y = NULL
+  ) +
+  
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.y        = element_text(size = 10, colour = "grey20"),
+    axis.text.x        = element_text(size = 10),
+    axis.title.x       = element_text(size = 10, margin = margin(t = 6)),
+    panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.35),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.border       = element_blank(),
+    axis.line.x        = element_line(colour = "grey60", linewidth = 0.4),
+    #legend.position    = "top",
+    legend.position    = "none",
+    legend.text        = element_text(size = 8),
+    legend.key.size    = unit(0.45, "cm"),
+    plot.margin        = margin(t = 10, r = 40, b = 10, l = 10)
+  )
+
+p1_v2
+
+
+ggsave(file.path(out_dir, "tfp_international_bar.png"), 
+       plot = p1,
        width = 18, height = 14, units = "cm", dpi = 300, bg = "white")
 
+ggsave(file.path(out_dir, "tfp_international_bar_CLEAN.png"), 
+       plot = p1_v2,
+       width = 18, height = 10, units = "cm", dpi = 300, bg = "white")
+
+ggsave(file.path(out_dir, "tfp_international_bar_CLEAN_600dpi.png"), 
+       plot = p1_v2,
+       width = 18, height = 10, units = "cm", dpi = 600, bg = "white")
 
 
 
 # ── 5. Figure 2: TFP index trajectories, rebased to 2000 = 100 ---------------
 line_countries <- c("Australia", "United States", "Canada",
-                    "Argentina", "Brazil", "New Zealand", "World")
+                    "Argentina", "Brazil", "New Zealand", "France")
 
 line_data <- raw |>
   filter(country %in% line_countries, year >= 2000) |>
@@ -234,7 +309,7 @@ line_sizes <- c(
   "Argentina"    = 0.8,
   "Brazil"       = 0.8,
   "New Zealand"  = 0.8,
-  "World (avg)"  = 0.8
+  "France"  = 0.8
 )
 
 line_types <- c(
@@ -244,7 +319,7 @@ line_types <- c(
   "Argentina"    = "solid",
   "Brazil"       = "dashed",
   "New Zealand"  = "dotdash",
-  "World (avg)"  = "dotted"
+  "France"  = "dotted"
 )
 p2 <- ggplot(line_data, aes(x = year, y = tfp_rebased,
                             colour    = label,
@@ -317,6 +392,76 @@ p2
 ggsave(file.path(out_dir, "tfp_international_lines.png"), plot = p2,
        width = 18, height = 11, units = "cm", dpi = 300, bg = "white")
 
+
+p2_v2 <- ggplot(line_data, aes(x = year, y = tfp_rebased,
+                               colour    = label,
+                               linewidth = label,
+                               linetype  = label)) +
+  
+  geom_hline(yintercept = 100, colour = "#D1D5DB", linewidth = 0.4,
+             linetype = "dotted") +
+  
+  geom_line() +
+  
+  geom_text_repel(
+    data           = end_labels,
+    aes(label      = label),
+    hjust          = 0,
+    nudge_x        = 0.5,
+    size           = 2.8,
+    direction      = "y",
+    segment.size   = 0.3,
+    segment.colour = "grey60",
+    show.legend    = FALSE,
+    box.padding    = 0.2,
+    force          = 1.5,
+    colour         = ifelse(end_labels$label == "Australia", "#0D2F52", "grey55")
+  ) +
+  
+  scale_colour_manual(values = line_colours, name = NULL) +
+  scale_linewidth_manual(values = line_sizes, name = NULL) +
+  scale_linetype_manual(values = line_types, name = NULL) +
+  
+  scale_x_continuous(
+    breaks = c(seq(2000, 2020, by = 5), 2023),   # ← adds 2023 explicitly
+    expand = expansion(mult = c(0.01, 0.18))
+  ) +
+  scale_y_continuous(
+    labels = label_number(accuracy = 1),
+    breaks = seq(80, 200, by = 20)
+  ) +
+  
+  labs(
+    x = NULL,
+    y = "TFP index"
+  ) +
+  
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text          = element_text(size = 8, colour = "grey30"),
+    axis.title.y       = element_text(size = 9, margin = margin(r = 6)),
+    panel.grid.major.y = element_line(colour = "grey90", linewidth = 0.35),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.border       = element_blank(),
+    axis.line.x        = element_line(colour = "grey60", linewidth = 0.4),
+    axis.ticks.x       = element_line(colour = "grey60", linewidth = 0.4),  # ← adds ticks
+    axis.ticks.length  = unit(0.2, "cm"),                                   # ← tick length
+    legend.position    = "none",
+    plot.margin        = margin(t = 10, r = 90, b = 10, l = 10)
+  )+
+  
+  guides(linewidth = "none", linetype = "none")
+
+p2_v2
+
+ggsave(file.path(out_dir, "tfp_international_lines_CLEAN.png"), 
+       plot = p2_v2,
+       width = 18, height = 11, units = "cm", dpi = 300, bg = "white")
+
+ggsave(file.path(out_dir, "tfp_international_lines_CLEAN_600dpi.png"), 
+       plot = p2_v2,
+       width = 18, height = 11, units = "cm", dpi = 600, bg = "white")
 
 
 # Check 1 — print Australia's raw TFP index values
