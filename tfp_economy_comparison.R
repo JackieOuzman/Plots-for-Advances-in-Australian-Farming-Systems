@@ -215,9 +215,68 @@ p <- ggplot(combined, aes(x = avg_growth, y = industry, fill = source)) +
 p
 
 
+p2 <- ggplot(combined, aes(x = avg_growth, y = industry, fill = source)) +
+  
+  geom_col(width = 0.72) +
+  geom_vline(xintercept = 0, colour = "#6B7280", linewidth = 0.6) +
+  
+  geom_text(
+    aes(
+      label = sprintf("%+.2f%%", avg_growth),
+      hjust = ifelse(avg_growth >= 0, -0.12, 1.12)
+    ),
+    size = 2.8, colour = "grey25"
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "ABARES broadacre TFP\n(unadjusted, 2000–01 to 2023–24)" = col_abares,
+      "ABS industry MFP\n(hours worked, 2000–01 to 2023–24)"   = col_abs
+    ),
+    name = NULL
+  ) +
+  scale_x_continuous(
+    labels = function(x) paste0(x, "%"),
+    limits = c(-3, 2.5),                          # expanded left limit to show Mining/Electricity
+    breaks = seq(-3, 2, by = 1),
+    expand = expansion(mult = c(0.02, 0.14))
+  ) +
+  
+  labs(
+    x = "Average annual growth rate (%, 2000–01 to 2023–24)",
+    y = NULL
+  ) +
+  
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.y        = element_text(size = 8.5, colour = "grey20"),
+    axis.text.x        = element_text(size = 8),
+    axis.title.x       = element_text(size = 9, margin = margin(t = 6)),
+    panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.35),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.border       = element_blank(),
+    axis.line.x        = element_line(colour = "grey60", linewidth = 0.4),
+    legend.position    = "top",
+    legend.text        = element_text(size = 8),
+    legend.key.size    = unit(0.45, "cm"),
+    plot.margin        = margin(t = 10, r = 30, b = 10, l = 10)
+  )
+p2
+
+
+
+
+
 # ── 7. Save ------------------------------------------------------------------
 out_dir <- "N:/Advances in Australian Farming Systems Paper/Section 2/Farm productivity/"
 
 ggsave(file.path(out_dir, "tfp_economy_comparison.png"), plot = p,
        width = 18, height = 22, units = "cm", dpi = 300, bg = "white")
 
+ggsave(file.path(out_dir, "tfp_economy_comparison_CLEAN.png"), 
+       plot = p2,
+       width = 18, height = 22, units = "cm", dpi = 300, bg = "white")
+ggsave(file.path(out_dir, "tfp_economy_comparison_CLEAN_600dpi.png"), 
+       plot = p2,
+       width = 18, height = 22, units = "cm", dpi = 600, bg = "white")
