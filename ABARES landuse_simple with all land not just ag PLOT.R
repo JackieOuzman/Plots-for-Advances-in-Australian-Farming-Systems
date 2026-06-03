@@ -233,4 +233,5 @@ p_combined_5b
 
 ggsave(paste0(out_path, "bar_5bclass_change_with_table_CLEAN.png"),
        p_combined_5b, width = 10, height = 7, dpi = 300)
-
+ggsave(paste0(out_path, "bar_5bclass_change_with_table_CLEAN_600dpi.png"),
+       p_combined_5b, width = 10, height = 7, dpi = 600)
