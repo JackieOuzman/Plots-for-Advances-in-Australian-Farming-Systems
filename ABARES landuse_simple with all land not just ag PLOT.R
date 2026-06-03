@@ -190,3 +190,47 @@ print(p_combined)
 
 ggsave(paste0(out_path, "bar_5class_change_with_table.png"),
        p_combined, width = 10, height = 7, dpi = 300)
+
+# ============================================================
+# 5b. VERSION 2: 5 CLASSES IN BAR, 6 IN TABLE, TABLE OVERLAID
+# ============================================================
+
+
+p_bar_5b <- ggplot(change_tbl_5,
+                   aes(x = reorder(class, pct_change),
+                       y = pct_change,
+                       fill = class)) +
+  geom_col(width = 0.6, colour = "grey30", linewidth = 0.3) +
+  geom_hline(yintercept = 0, linewidth = 0.5, colour = "grey20") +
+  geom_text(
+    aes(label = sprintf("%+.1f%%", pct_change),
+        hjust = ifelse(pct_change >= 0, -0.15, 1.15)),
+    size = 3.5
+  ) +
+  coord_flip(clip = "off") +
+  scale_fill_manual(values = class_colours_5, guide = "none") +
+  scale_y_continuous(
+    labels = scales::label_percent(scale = 1),
+    expand = expansion(mult = c(0.15, 0.2))
+  ) +
+  labs(
+    x = NULL,
+    y = NULL          # removes x-axis label (y in coord_flip)
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank()
+  )
+p_bar_5b
+
+p_combined_5b <- p_bar_5b +
+  inset_element(
+    wrap_elements(tbl_grob),
+    left = 0.42, bottom = 0.0, right = 1.02, top = 0.75
+  )
+p_combined_5b
+
+ggsave(paste0(out_path, "bar_5bclass_change_with_table_CLEAN.png"),
+       p_combined_5b, width = 10, height = 7, dpi = 300)
+
