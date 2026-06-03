@@ -179,7 +179,80 @@ p <- ggplot(tfp, aes(x = year_start, y = tfp,
   
   guides(linewidth = "none")
 p
+
+
+p_v2 <- ggplot(tfp, aes(x = year_start, y = tfp,
+                        colour    = industry,
+                        linetype  = industry,
+                        linewidth = industry)) +
+  
+  geom_hline(yintercept = 100, colour = "#D1D5DB", linewidth = 0.4,
+             linetype = "dotted") +
+  
+  geom_line() +
+  
+  geom_text(
+    data    = end_labels,
+    aes(y   = tfp + y_nudge, label = industry),
+    colour  = "grey20",        # overrides inherited line colour
+    hjust   = 0,
+    nudge_x = 0.5,
+    size    = 3.0,
+    #fontface = "bold",         # bold helps too
+    show.legend = FALSE
+  ) +
+  
+  scale_colour_manual(values = industry_colours) +
+  scale_linetype_manual(values = industry_linetypes) +
+  scale_linewidth_manual(values = industry_linewidths) +
+  
+  scale_x_continuous(
+    breaks = seq(1979, 2024, by = 5),
+    labels = function(x) paste0(x, "–", substr(x + 1, 3, 4)),
+    expand = expansion(mult = c(0.01, 0.17))
+  ) +
+  scale_y_continuous(
+    breaks = seq(80, 320, by = 40),
+    labels = label_number(accuracy = 1)
+  ) +
+  
+  labs(
+    x = NULL,
+    y = "TFP index"
+  ) +
+  
+  theme_minimal(base_size = 13) +
+  theme(
+    axis.title.y       = element_text(size = 12, angle = 90, margin = margin(r = 6)),
+    axis.text          = element_text(size = 11, colour = "grey30"),
+    axis.text.x        = element_text(angle = 45, hjust = 1, size = 11),
+    axis.ticks         = element_line(colour = "grey70", linewidth = 0.3),
+    axis.ticks.length  = unit(2.5, "pt"),
+    panel.grid.major.y = element_line(colour = "grey90", linewidth = 0.35),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor   = element_blank(),
+    legend.position    = "none",
+    panel.border       = element_blank(),
+    axis.line.x        = element_line(colour = "grey60", linewidth = 0.4),
+    axis.line.y        = element_blank(),
+    plot.margin        = margin(t = 10, r = 90, b = 10, l = 10)
+  ) +
+  
+  guides(linewidth = "none")
+
+p_v2
+
+
+
 # ── 7. Save ------------------------------------------------------------------
 ggsave("N:/Advances in Australian Farming Systems Paper/Section 2/Farm productivity/tfp_industry_figure.png", plot = p,
        width = 18, height = 11, units = "cm", dpi = 300, bg = "white")
 
+
+ggsave("N:/Advances in Australian Farming Systems Paper/Section 2/Farm productivity/tfp_industry_figure_CLEAN.png", 
+       plot = p_v2,
+       width = 18, height = 11, units = "cm", dpi = 300, bg = "white")
+
+ggsave("N:/Advances in Australian Farming Systems Paper/Section 2/Farm productivity/tfp_industry_figure_CLEAN_600dpi.png", 
+       plot = p_v2,
+       width = 18, height = 11, units = "cm", dpi = 600, bg = "white")
