@@ -221,4 +221,69 @@ ggsave(
   bg       = "white"
 )
 
-message("Plot saved to: irrigation_value_per_ha.png")
+# =============================================================================
+# 5.b. CLEAN
+# =============================================================================
+
+p_clean <- ggplot(plot_df, aes(x = value_per_ha, y = category, fill = category)) +
+  geom_col(width = 0.45, show.legend = FALSE) +
+  geom_text(
+    aes(label = paste0("$", comma(round(value_per_ha)), " / ha")),
+    hjust    = -0.1,
+    size     = 3.8,
+    fontface = "bold",
+    colour   = "grey25"
+  ) +
+  scale_fill_manual(values = pal) +
+  scale_x_continuous(
+    expand = expansion(mult = c(0, 0.28)),
+    labels = label_dollar(scale = 1e-3, suffix = "k", accuracy = 1)
+  ) +
+  labs(
+    #title    = "Irrigated agriculture generates ~4\u00d7 more value per hectare",
+    #subtitle = "Gross value of production per cropped hectare, Australia 2017\u201318",
+    x        = "Gross value of production ($ / ha)",
+    y        = NULL#,
+    #caption  = paste0(
+     # "Sources: ABS cat. 4610.0.55.008 (Gross Value of Irrigated Agricultural Production, 2017-18);\n",
+     # "ABS cat. 7503.0 (Value of Agricultural Commodities Produced, 2017-18);\n",
+     # "ABS cat. 4618.0 (Water Use on Australian Farms, 2017-18);\n",
+     # "ABS cat. 7121.0 (Agricultural Commodities, Australia, 2017-18).\n",
+     # "Value per hectare is derived (not directly published). Non-irrigated is the residual of total minus irrigated."
+    #)
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title         = element_text(face = "bold", size = 13, margin = margin(b = 4)),
+    plot.subtitle      = element_text(colour = "grey40", size = 10, margin = margin(b = 14)),
+    plot.caption       = element_text(colour = "grey55", size = 7.5, hjust = 0,
+                                      margin = margin(t = 12), lineheight = 1.4),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.4),
+    axis.text.y        = element_text(size = 11, colour = "grey20"),
+    axis.text.x        = element_text(size = 9,  colour = "grey50"),
+    axis.title.x       = element_text(size = 9,  colour = "grey40", margin = margin(t = 6)),
+    plot.margin        = margin(14, 20, 12, 14)
+  )
+
+print(p_clean)
+
+
+ggsave(
+  filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Irrigation contribution/irrigation_value_per_ha_CLEAN.png",
+  plot     = p_clean,
+  width    = 7,
+  height   = 3.5,
+  dpi      = 300,
+  bg       = "white"
+)
+
+ggsave(
+  filename = "N:/Advances in Australian Farming Systems Paper/Section 1/Irrigation contribution/irrigation_value_per_ha_CLEAN_600dpi.png",
+  plot     = p_clean,
+  width    = 7,
+  height   = 3.5,
+  dpi      = 600,
+  bg       = "white"
+)
