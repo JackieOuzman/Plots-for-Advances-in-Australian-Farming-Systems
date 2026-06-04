@@ -194,7 +194,7 @@ p1 <- ggplot(growth, aes(x = avg_growth, y = label, fill = bar_colour)) +
 p1
 
 p1_v2 <- ggplot(
-  growth |> filter(!label %in% c("India", "China", "World (avg)", "Germany")),
+  growth |> filter(!label %in% c("India", "China",  "Germany")),
   aes(x = avg_growth, y = label, fill = bar_colour)
 ) +
   
@@ -202,7 +202,7 @@ p1_v2 <- ggplot(
   geom_vline(xintercept = 0, colour = "#6B7280", linewidth = 0.6) +
   
   geom_col(
-    data = filter(growth, is_australia, !label %in% c("India", "China", "World", "Germany")),
+    data = filter(growth, is_australia, !label %in% c("India", "China",  "Germany")),
     aes(x = avg_growth, y = label),
     width = 0.70, fill = col_australia, colour = "#0D2F52", linewidth = 0.5
   ) +
@@ -244,7 +244,8 @@ p1_v2 <- ggplot(
     axis.text.y        = element_text(size = 10, colour = "grey20"),
     axis.text.x        = element_text(size = 10),
     axis.title.x       = element_text(size = 10, margin = margin(t = 6)),
-    panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.35),
+    #panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.35),
+    panel.grid.major.x = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor   = element_blank(),
     panel.border       = element_blank(),
@@ -274,8 +275,10 @@ ggsave(file.path(out_dir, "tfp_international_bar_CLEAN_600dpi.png"),
 
 
 # ── 5. Figure 2: TFP index trajectories, rebased to 2000 = 100 ---------------
-line_countries <- c("Australia", "United States", "Canada",
-                    "Argentina", "Brazil", "New Zealand", "France")
+line_countries <- c("Australia", "USA", "Canada",
+                    "Argentina", "Brazil", "New Zealand", "France", "World")
+
+unique(raw$country)
 
 line_data <- raw |>
   filter(country %in% line_countries, year >= 2000) |>
@@ -293,34 +296,36 @@ end_labels <- line_data |>
   ungroup()
 
 line_colours <- c(
-  "Australia"    = "#1A4F82",
-  "USA"          = "#4A90C4",
-  "Canada"       = "#7BAFD4",
-  "Argentina"    = "#5B9E8E",
-  "Brazil"       = "#8DC4A8",
-  "New Zealand"  = "#A0B8CC",
-  "World (avg)"  = "#B0B0A8"
+  "Australia"   = "#1A4F82",
+  "USA"         = "#4A90C4",
+  "Canada"      = "#7BAFD4",
+  "Argentina"   = "#5B9E8E",
+  "Brazil"      = "#8DC4A8",
+  "New Zealand" = "#A0B8CC",
+  "France"      = "#C4A882",
+  "World (avg)" = "#B0B0A8"
 )
-
 line_sizes <- c(
-  "Australia"    = 1.4,
-  "USA"          = 0.8,
-  "Canada"       = 0.8,
-  "Argentina"    = 0.8,
-  "Brazil"       = 0.8,
-  "New Zealand"  = 0.8,
-  "France"  = 0.8
+  "Australia"   = 1.4,
+  "USA"         = 0.8,
+  "Canada"      = 0.8,
+  "Argentina"   = 0.8,
+  "Brazil"      = 0.8,
+  "New Zealand" = 0.8,
+  "France"      = 0.8,
+  "World (avg)" = 0.8
+)
+line_types <- c(
+  "Australia"   = "solid",
+  "USA"         = "solid",
+  "Canada"      = "dashed",
+  "Argentina"   = "solid",
+  "Brazil"      = "dashed",
+  "New Zealand" = "dotdash",
+  "France"      = "dotted",
+  "World (avg)" = "solid"
 )
 
-line_types <- c(
-  "Australia"    = "solid",
-  "USA"          = "solid",
-  "Canada"       = "dashed",
-  "Argentina"    = "solid",
-  "Brazil"       = "dashed",
-  "New Zealand"  = "dotdash",
-  "France"  = "dotted"
-)
 p2 <- ggplot(line_data, aes(x = year, y = tfp_rebased,
                             colour    = label,
                             linewidth = label,
@@ -389,6 +394,9 @@ p2 <- ggplot(line_data, aes(x = year, y = tfp_rebased,
   
   guides(linewidth = "none", linetype = "none")
 p2
+
+
+
 ggsave(file.path(out_dir, "tfp_international_lines.png"), plot = p2,
        width = 18, height = 11, units = "cm", dpi = 300, bg = "white")
 
