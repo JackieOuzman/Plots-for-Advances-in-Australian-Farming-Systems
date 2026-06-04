@@ -46,6 +46,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(scales)
+library(stringr)
 
 # ── 1. File paths — update both to your local copies -------------------------
 abares_file <- "N:/Advances in Australian Farming Systems Paper/Section 2/Farm productivity/1_Data_AustAgPrdctvty2023-24_v1.0.0.xlsx"
@@ -266,7 +267,98 @@ p2
 
 
 
+p2_ABS <- ggplot(combined %>% filter(source != "ABARES broadacre TFP\n(unadjusted, 2000–01 to 2023–24)"),
+             aes(x = avg_growth, y = industry, fill = source)) +
+  
+  geom_col(width = 0.72) +
+  geom_vline(xintercept = 0, colour = "#6B7280", linewidth = 0.6) +
+  
+  geom_text(
+    aes(
+      label = sprintf("%+.2f%%", avg_growth),
+      hjust = ifelse(avg_growth >= 0, -0.12, 1.12)
+    ),
+    size = 3.2, colour = "grey25"
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "ABS industry MFP\n(hours worked, 2000–01 to 2023–24)" = col_abs
+    ),
+    name = NULL
+  ) +
+  scale_x_continuous(
+    labels = function(x) paste0(x, "%"),
+    limits = c(-3, 2.5),
+    breaks = seq(-3, 2, by = 1),
+    expand = expansion(mult = c(0.02, 0.14))
+  ) +
+  
+  labs(
+    x = "Average annual growth rate (%, 2000–01 to 2023–24)",
+    y = NULL
+  ) +
+  
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.y        = element_text(size = 10, colour = "grey20"),
+    axis.text.x        = element_text(size = 10),
+    axis.title.x       = element_text(size = 12, margin = margin(t = 6)),
+    panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.35),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.border       = element_blank(),
+    axis.line.x        = element_line(colour = "grey60", linewidth = 0.4),
+    legend.position    = "none",
+    legend.text        = element_text(size = 8),
+    legend.key.size    = unit(0.45, "cm"),
+    plot.margin        = margin(t = 10, r = 30, b = 10, l = 10)
+  )
 
+
+p2_ABS
+
+
+p2_ABS_bar <- ggplot(
+  combined %>% filter(source != "ABARES broadacre TFP\n(unadjusted, 2000–01 to 2023–24)"),
+  aes(x = industry, y = avg_growth, fill = industry == "Agriculture, forestry and fishing")
+) +
+  
+  geom_col(width = 0.72) +
+  geom_hline(yintercept = 0, colour = "#6B7280", linewidth = 0.6) +
+  
+  scale_fill_manual(
+    values = c("FALSE" = col_abs, "TRUE" = "#1a3a5c"),
+    guide = "none"
+  ) +
+  scale_y_continuous(
+    labels = function(x) paste0(x, "%"),
+    breaks = seq(-3, 2, by = 1),
+    expand = expansion(mult = c(0.12, 0.14))
+  ) +
+  
+  scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 20))+
+  labs(
+    y = "Average annual growth rate %",
+    x = NULL
+  ) +
+  
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.x = element_text(size = 8.5, colour = "grey20", angle = 45, hjust = 1,
+                               lineheight = 0.9),
+    axis.text.y        = element_text(size = 8),
+    axis.title.y       = element_text(size = 9, margin = margin(r = 6)),
+    panel.grid.major.y = element_line(colour = "grey90", linewidth = 0.35),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor   = element_blank(),
+    panel.border       = element_blank(),
+    axis.line.y        = element_line(colour = "grey60", linewidth = 0.4),
+    legend.position    = "none",
+    plot.margin = margin(t = 10, r = 10, b = 60, l = 10)
+  )
+
+p2_ABS_bar
 
 # ── 7. Save ------------------------------------------------------------------
 out_dir <- "N:/Advances in Australian Farming Systems Paper/Section 2/Farm productivity/"
@@ -280,3 +372,18 @@ ggsave(file.path(out_dir, "tfp_economy_comparison_CLEAN.png"),
 ggsave(file.path(out_dir, "tfp_economy_comparison_CLEAN_600dpi.png"), 
        plot = p2,
        width = 18, height = 22, units = "cm", dpi = 600, bg = "white")
+
+
+ggsave(file.path(out_dir, "tfp_economy_comparison_ABS_CLEAN.png"), 
+       plot = p2_ABS,
+       width = 18, height = 22, units = "cm", dpi = 300, bg = "white")
+ggsave(file.path(out_dir, "tfp_economy_comparison_ABS_CLEAN_600dpi.png"), 
+       plot = p2_ABS,
+       width = 18, height = 22, units = "cm", dpi = 600, bg = "white")
+
+ggsave(file.path(out_dir, "tfp_economy_comparison_ABS_BAR_CLEAN.png"), 
+       plot = p2_ABS_bar,
+       width = 18, height = 18, units = "cm", dpi = 300, bg = "white")
+ggsave(file.path(out_dir, "tfp_economy_comparison_ABS_BAR_CLEAN_600dpi.png"), 
+       plot = p2_ABS_bar,
+       width = 18, height = 18, units = "cm", dpi = 600, bg = "white")
