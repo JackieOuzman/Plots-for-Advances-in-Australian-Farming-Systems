@@ -170,3 +170,40 @@ ggsave(
   filename = file.path(output_dir, "fig_broadacre_farms_by_industry_ABARES_CLEAN_600dpi.png"),
   plot     = p_clean, width = 20, height = 12, units = "cm", dpi = 600
 )
+
+
+
+
+
+# =============================================================================
+# Diagnostics: check national CSV against ABARES Figure 13
+# =============================================================================
+
+# 1. Total farms across all industries (excl. All Broadacre) for 2010 and 2024
+dat_raw |>
+  filter(Variable == "Population",
+         Year %in% c(2010, 2024),
+         Industry != "All Broadacre") |>
+  group_by(Year) |>
+  summarise(total = sum(Value, na.rm = TRUE))
+
+# 2. All industries available in the CSV - are Dairy included?
+dat_raw |>
+  filter(Variable == "Population", Year == 2010) |>
+  select(Industry, Value) |>
+  arrange(desc(Value))
+
+# 3. Check what "All Broadacre" gives vs sum of parts
+dat_raw |>
+  filter(Variable == "Population", Year %in% c(2010, 2024)) |>
+  group_by(Year) |>
+  mutate(sum_parts = sum(Value[Industry != "All Broadacre"], na.rm = TRUE)) |>
+  filter(Industry == "All Broadacre") |>
+  select(Year, all_broadacre = Value, sum_of_parts = sum_parts)
+
+# 4. Figure 13 approximate visual totals for comparison
+# Beef: 2009-10 ~19,500, 2023-24 ~19,000 (roughly stable)
+# Wheat and other crops: 2009-10 ~15,500, 2023-24 ~9,800
+# Mixed: 2009-10 ~17,000, 2023-24 ~6,000
+# Sheep: 2009-10 ~15,500, 2023-24 ~9,800
+# Sheep-Beef: 2009-10 ~8,000, 2023-24 ~4,500
