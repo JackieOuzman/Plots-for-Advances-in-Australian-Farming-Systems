@@ -236,11 +236,11 @@ p2 <- ggplot(combined, aes(x = avg_growth, y = industry, fill = source)) +
     ),
     name = NULL
   ) +
-  scale_x_continuous(
+ scale_x_continuous(
     labels = function(x) paste0(x, "%"),
-    limits = c(-3, 2.5),                          # expanded left limit to show Mining/Electricity
+    limits = c(-3, 2.3),          # was c(-3, 2.5)
     breaks = seq(-3, 2, by = 1),
-    expand = expansion(mult = c(0.02, 0.14))
+    expand = expansion(mult = c(0.02, 0.08))  # was 0.14 on right
   ) +
   
   labs(
@@ -265,12 +265,15 @@ p2 <- ggplot(combined, aes(x = avg_growth, y = industry, fill = source)) +
   )
 p2
 
+combined_plot <- combined %>% 
+  filter(source != "ABARES broadacre TFP\n(unadjusted, 2000–01 to 2023–24)") %>%
+  mutate(highlight = industry == "Agriculture, forestry and fishing")
 
 
-p2_ABS <- ggplot(combined %>% filter(source != "ABARES broadacre TFP\n(unadjusted, 2000–01 to 2023–24)"),
-             aes(x = avg_growth, y = industry, fill = source)) +
+p2_ABS <-  ggplot(combined_plot,
+                  aes(x = avg_growth, y = industry, fill = highlight)) +
   
-  geom_col(width = 0.72) +
+  geom_col(width = 0.55) +
   geom_vline(xintercept = 0, colour = "#6B7280", linewidth = 0.6) +
   
   geom_text(
@@ -283,15 +286,17 @@ p2_ABS <- ggplot(combined %>% filter(source != "ABARES broadacre TFP\n(unadjuste
   
   scale_fill_manual(
     values = c(
-      "ABS industry MFP\n(hours worked, 2000–01 to 2023–24)" = col_abs
+      "FALSE" = col_abs,
+      "TRUE"  = "#1a3a5c"    # dark blue
     ),
     name = NULL
   ) +
+  
   scale_x_continuous(
     labels = function(x) paste0(x, "%"),
-    limits = c(-3, 2.5),
+    limits = c(-3, 2.3),          # was c(-3, 2.5)
     breaks = seq(-3, 2, by = 1),
-    expand = expansion(mult = c(0.02, 0.14))
+    expand = expansion(mult = c(0.02, 0.08))  # was 0.14 on right
   ) +
   
   labs(
@@ -374,9 +379,20 @@ ggsave(file.path(out_dir, "tfp_economy_comparison_CLEAN_600dpi.png"),
        width = 18, height = 22, units = "cm", dpi = 600, bg = "white")
 
 
+
 ggsave(file.path(out_dir, "tfp_economy_comparison_ABS_CLEAN.png"), 
        plot = p2_ABS,
        width = 18, height = 22, units = "cm", dpi = 300, bg = "white")
+
+
+ggsave(file.path(out_dir, "tfp_economy_comparison_ABS_CLEAN_v2.png"), 
+       plot = p2_ABS,
+       width = 18, height = 17, units = "cm", dpi = 300, bg = "white")
+
+
+
+
+
 ggsave(file.path(out_dir, "tfp_economy_comparison_ABS_CLEAN_600dpi.png"), 
        plot = p2_ABS,
        width = 18, height = 22, units = "cm", dpi = 600, bg = "white")
