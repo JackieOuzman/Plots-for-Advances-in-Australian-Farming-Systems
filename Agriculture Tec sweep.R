@@ -95,3 +95,4 @@ p_sector_facet <- ggplot(sector_cat_counts,
 p_sector_facet
 ggsave(file.path(out_dir, "agtech_by_sector_facet.png"), plot = p_sector_facet,
        width = 12, height = 7, dpi = 300)
+write.csv(sector_cat_counts, file = paste0(out_dir, "/agtech_by_sector_cat_counts.csv") )
